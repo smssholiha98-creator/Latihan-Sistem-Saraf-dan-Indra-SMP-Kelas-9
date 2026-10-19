@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ujian IPA: Sistem Koordinasi & Panca Indra</title>
+    <style>
+        :root {
+            --primary: #0275d8;
+            --success: #5cb85c;
+            --danger: #d9534f;
+            --light: #f4f7f6;
+            --dark: #333;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #e9ecef; margin: 0; padding: 0; }
+        .container { max-width: 900px; margin: 20px auto; background: white; padding: 20px 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .hidden { display: none !important; }
+        
+        /* Header & Info */
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .timer { font-size: 1.5em; font-weight: bold; color: var(--danger); }
+        
+        /* Layout Ujian (Responsive) */
+        .exam-layout { display: flex; gap: 20px; }
+        .main-content { flex: 3; }
+        .sidebar { flex: 1; background: var(--light); padding: 15px; border-radius: 8px; max-height: 500px; overflow-y: auto; }
+        
+        /* Panel Nomor */
+        .panel-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 15px; }
+        .btn-nav { padding: 10px 0; text-align: center; border-radius: 5px; cursor: pointer; border: 1px solid #ccc; font-weight: bold; background: white; transition: 0.2s; }
+        .btn-nav.answered { background: var(--success); color: white; border-color: var(--success); }
+        .btn-nav.current { border: 3px solid var(--primary); transform: scale(1.1); }
+        
+        /* Soal & Opsi */
+        .question-text { font-size: 1.2em; margin-bottom: 10px; line-height: 1.5; color: var(--dark); }
+        .badge-diff { display: inline-block; padding: 4px 8px; font-size: 0.8em; border-radius: 4px; color: white; margin-bottom: 15px; }
+        .badge-lots { background: #17a2b8; }
+        .badge-mots { background: #f0ad4e; }
+        
+        .option-label { display: block; background: var(--light); padding: 12px; margin-bottom: 10px; border-radius: 5px; cursor: pointer; border: 1px solid #ddd; transition: 0.2s; }
+        .option-label:hover { background: #e2e6ea; }
+        .option-label input { margin-right: 10px; }
+        .option-label.selected { background: #d0e8fc; border-color: var(--primary); }
+
+        /* Tombol Aksi */
+        .action-buttons { display: flex; justify-content: space-between; margin-top: 20px; gap: 10px; flex-wrap: wrap; }
+        button { padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; font-weight: bold; transition: 0.2s; flex: 1; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-warning { background: #f0ad4e; color: white; }
+        .btn-danger { background: var(--danger); color: white; width: 100%; margin-top: 20px;}
+        
+        /* Pembahasan */
+        .result-item { border: 1px solid #ccc; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+        .correct-ans { background: #d4edda; border-color: #c3e6cb; }
+        .wrong-ans { background: #f8d7da; border-color: #f5c6cb; }
+        .discussion { margin-top: 10px; font-size: 0.95em; background: #fff3cd; padding: 10px; border-left: 4px solid #ffc107; }
+        
+        input[type="text"], input[type="email"] { width: 100%; padding: 12px; margin: 10px 0 20px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;}
+
+        /* MEDIA QUERY UNTUK HP (PHONE MODE) */
+        @media (max-width: 768px) {
+            .container { margin: 0; padding: 15px; border-radius: 0; min-height: 100vh; }
+            .exam-layout { flex-direction: column; } /* Mengubah tata letak menjadi vertikal */
+            .sidebar { max-height: none; overflow-y: visible; margin-top: 20px; }
+            .action-buttons button { font-size: 0.9em; padding: 10px; }
+            .panel-grid { grid-template-columns: repeat(6, 1fr); }
+            .header { flex-direction: column; align-items: flex-start; }
+            .timer { align-self: flex-end; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HALAMAN LOGIN -->
+    <div id="loginPage" class="container">
+        <h2 style="text-align: center; color: var(--primary);">Ujian Akhir: Sistem Koordinasi & Panca Indra</h2>
+        <p style="text-align: center;">Mata Pelajaran: IPA Kelas 9 | Durasi: 45 Menit | Jumlah: 30 Soal</p>
+        <hr>
+        <label>Nama Lengkap (Sesuai Absen):</label>
+        <input type="text" id="nama" placeholder="Masukkan nama lengkap" required>
+        <label>Email Siswa:</label>
+        <input type="email" id="email" placeholder="Masukkan alamat email" required>
+        
+        <div style="background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin-bottom: 20px; font-size: 0.9em;">
+            <strong>⚠️ PERHATIAN PENTING:</strong><br>
+            1. Ujian ini menggunakan sistem <b>Anti-Cheat</b>.<br>
+            2. Layar akan masuk mode penuh (Fullscreen).<br>
+            3. Dilarang keras menekan tombol Home, berpindah aplikasi, membagi layar, atau membuka tab lain.<br>
+            4. Pelanggaran lebih dari 2 kali akan mengakibatkan <b>DISKUALIFIKASI</b> otomatis.
+        </div>
+        
+        <button class="btn-primary" style="width: 100%; padding: 15px; font-size: 1.1em;" onclick="mulaiUjian()">Saya Mengerti, Mulai Ujian</button>
+    </div>
+
+    <!-- HALAMAN UJIAN -->
+    <div id="examPage" class="container hidden">
+        <div class="header">
+            <div>
+                <h3 style="margin:0;">IPA: Sistem Koordinasi</h3>
+                <small id="identitasSiswa"></small>
+            </div>
+            <div class="timer" id="timerDisplay">45:00</div>
+        </div>
+
+        <div class="exam-layout">
+            <div class="main-content">
+                <div id="badgeDiff" class="badge-diff"></div>
+                <div id="questionText" class="question-text"></div>
+                <div id="optionsContainer"></div>
+                
+                <div class="action-buttons">
+                    <button id="btnPrev" class="btn-primary" onclick="changeQuestion(-1)">&#8592; Sebelumnya</button>
+                    <button id="btnSkip" class="btn-warning" onclick="skipQuestion()">Lewati &#8635;</button>
+                    <button id="btnNext" class="btn-primary" onclick="changeQuestion(1)">Selanjutnya &#8594;</button>
+                </div>
+            </div>
+            
+            <div class="sidebar">
+                <h4 style="margin-top:0; text-align: center;">Navigasi Soal</h4>
+                <div class="panel-grid" id="panelGrid"></div>
+                <button class="btn-danger" style="padding: 15px; font-size: 1.1em;" onclick="konfirmasiSelesai()">SELESAI & KUMPULKAN</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HALAMAN HASIL & PEMBAHASAN -->
+    <div id="resultPage" class="container hidden">
+        <h2 style="text-align: center;">Hasil Ujian</h2>
+        <div style="text-align: center; font-size: 1.2em; margin-bottom: 20px;">
+            Nama: <span id="resNama"></span><br>
+            Nilai Akhir: <strong id="resSkor" style="font-size: 2em; color: var(--primary);"></strong>
+        </div>
+        <hr>
+        <h3>Pembahasan:</h3>
+        <div id="discussionContainer"></div>
+    </div>
+
+    <script>
+        // --- DATABASE 30 SOAL ---
+        const bankSoal = [
+            // (Untuk memperpendek respons, saya masukkan kembali 30 soal yang sama persis seperti sebelumnya)
+            { q: "Unit terkecil penyusun sistem saraf manusia disebut...", opt: ["A. Nefron", "B. Neuron", "C. Alveolus", "D. Dendrit"], ans: 1, type: "LOTS", bahas: "Unit fungsional terkecil penyusun sistem saraf adalah sel saraf atau neuron." },
+            { q: "Bagian dari sel saraf yang berfungsi menerima impuls dari sel saraf lain dan meneruskannya ke badan sel adalah...", opt: ["A. Akson", "B. Nodus Ranvier", "C. Dendrit", "D. Sel Schwann"], ans: 2, type: "LOTS", bahas: "Dendrit adalah tonjolan sitoplasma pada badan sel yang berfungsi menerima impuls dan meneruskannya ke badan sel." },
+            { q: "Andi menginjak paku payung dan secara refleks menarik kakinya. Urutan jalannya impuls pada gerak refleks tersebut adalah...", opt: ["A. Reseptor - saraf sensorik - otak - saraf motorik - efektor", "B. Reseptor - saraf motorik - sumsum tulang belakang - saraf sensorik - efektor", "C. Reseptor - saraf sensorik - sumsum tulang belakang - saraf motorik - efektor", "D. Efektor - saraf sensorik - sumsum tulang belakang - saraf motorik - reseptor"], ans: 2, type: "MOTS", bahas: "Jalan impuls gerak refleks tidak melewati otak sebagai pusat pengolah utama, melainkan melalui jalan pintas yaitu sumsum tulang belakang." },
+            { q: "Sistem saraf pusat manusia terdiri atas...", opt: ["A. Otak dan serabut saraf", "B. Otak dan sumsum tulang belakang", "C. Sumsum tulang belakang dan saraf tepi", "D. Saraf simpatis dan parasimpatis"], ans: 1, type: "LOTS", bahas: "Saraf pusat merupakan pusat koordinasi yang terdiri dari otak dan sumsum tulang belakang (medula spinalis)." },
+            { q: "Seseorang yang mengalami benturan keras di kepala bagian belakang mengalami kesulitan menjaga keseimbangan tubuh saat berjalan. Bagian otak yang kemungkinan besar mengalami gangguan adalah...", opt: ["A. Serebrum (Otak besar)", "B. Serebelum (Otak kecil)", "C. Medula oblongata (Sumsum lanjutan)", "D. Hipotalamus"], ans: 1, type: "MOTS", bahas: "Otak kecil (Serebelum) yang terletak di bawah otak besar bagian belakang berfungsi sebagai pusat keseimbangan dan koordinasi gerak otot." },
+            { q: "Celah pertemuan antara ujung akson suatu neuron dengan dendrit neuron lainnya disebut...", opt: ["A. Sinapsis", "B. Nodus Ranvier", "C. Myelin", "D. Ganglion"], ans: 0, type: "LOTS", bahas: "Sinapsis adalah celah yang menghubungkan antar neuron. Di sini impuls diteruskan dengan bantuan neurotransmiter." },
+            { q: "Perhatikan fungsi saraf otonom berikut! 1) Mempercepat denyut jantung. 2) Memperbesar pupil mata. 3) Menghambat pencernaan. Saraf yang bekerja memberikan efek tersebut adalah...", opt: ["A. Saraf Somatik", "B. Saraf Kranial", "C. Saraf Parasimpatis", "D. Saraf Simpatis"], ans: 3, type: "MOTS", bahas: "Saraf simpatis umumnya bekerja untuk memacu kerja organ dalam kondisi siaga (fight or flight), seperti mempercepat detak jantung dan melebarkan pupil." },
+            { q: "Selaput pembungkus otak dan sumsum tulang belakang yang berfungsi melindunginya dari benturan disebut...", opt: ["A. Pleura", "B. Perikardium", "C. Meninges", "D. Periosteum"], ans: 2, type: "LOTS", bahas: "Meninges adalah selaput pelindung sistem saraf pusat (otak dan sumsum tulang belakang). Terdiri dari piameter, arakhnoid, dan durameter." },
+            
+            // Sistem Endokrin (Hormon)
+            { q: "Kelenjar endokrin disebut juga kelenjar buntu karena...", opt: ["A. Tidak memiliki saluran pengeluaran khusus", "B. Hormon yang dihasilkan langsung dibuang", "C. Hanya aktif pada masa pubertas", "D. Terletak di organ yang tersembunyi"], ans: 0, type: "LOTS", bahas: "Disebut kelenjar buntu karena sekresi kelenjar (hormon) langsung disalurkan ke pembuluh darah tanpa melalui saluran (duktus) khusus." },
+            { q: "Pak Budi divonis dokter menderita Diabetes Melitus karena tingginya kadar glukosa dalam darahnya. Hal ini disebabkan oleh gangguan produksi hormon...", opt: ["A. Tiroksin oleh kelenjar tiroid", "B. Adrenalin oleh kelenjar adrenal", "C. Insulin oleh kelenjar pankreas", "D. Estrogen oleh ovarium"], ans: 2, type: "MOTS", bahas: "Insulin diproduksi oleh kelenjar pankreas (pulau Langerhans) yang berfungsi mengubah glukosa menjadi glikogen. Kekurangannya menyebabkan diabetes." },
+            { q: "Hormon yang berfungsi memacu pertumbuhan sekunder pada remaja laki-laki, seperti tumbuhnya kumis dan membesarnya pita suara adalah...", opt: ["A. Progesteron", "B. Testosteron", "C. Estrogen", "D. Prolaktin"], ans: 1, type: "LOTS", bahas: "Testosteron dihasilkan oleh testis pada pria yang memicu perkembangan ciri kelamin sekunder jantan." },
+            { q: "Saat seekor anjing ganas tiba-tiba mengejar kita, jantung berdebar kencang dan kita berlari sangat cepat tanpa disadari. Kelenjar yang sangat aktif memproduksi hormon saat kondisi ini adalah...", opt: ["A. Kelenjar Adrenal (Anak ginjal)", "B. Kelenjar Pituitari (Hipofisis)", "C. Kelenjar Paratiroid", "D. Kelenjar Timus"], ans: 0, type: "MOTS", bahas: "Kelenjar adrenal menghasilkan hormon adrenalin/epinefrin yang dipicu oleh stres atau ancaman, meningkatkan gula darah dan detak jantung untuk energi instan." },
+            { q: "Kelenjar hipofisis (pituitari) sering disebut sebagai 'Master of Gland' karena...", opt: ["A. Kelenjar terbesar di dalam tubuh", "B. Terletak di pusat otak", "C. Menghasilkan hormon yang mengatur kelenjar endokrin lain", "D. Mengatur kecerdasan dan memori manusia"], ans: 2, type: "MOTS", bahas: "Hipofisis disebut Master of Gland karena hormon yang disekresikannya mengatur dan menstimulasi kerja kelenjar endokrin lainnya." },
+
+            // Panca Indra - Mata
+            { q: "Bagian mata yang berfungsi mengatur jumlah cahaya yang masuk ke dalam mata dengan cara menyempitkan atau melebarkan pupil adalah...", opt: ["A. Kornea", "B. Retina", "C. Lensa", "D. Iris"], ans: 3, type: "LOTS", bahas: "Iris (selaput pelangi) adalah otot berwarna pada mata yang mengatur ukuran pupil sesuai intensitas cahaya." },
+            { q: "Pada penderita miopi (rabun jauh), bayangan benda jatuh di depan retina. Untuk membantu penderita miopi agar dapat melihat normal, dibutuhkan kacamata berlensa...", opt: ["A. Cembung (Positif)", "B. Cekung (Negatif)", "C. Silindris", "D. Ganda (Bifokal)"], ans: 1, type: "MOTS", bahas: "Lensa cekung (divergen) akan memencarkan cahaya sebelum masuk ke mata, sehingga bayangan yang awalnya jatuh di depan retina dapat mundur pas ke retina." },
+            { q: "Sel fotoreseptor pada retina yang peka terhadap cahaya redup dan tidak dapat membedakan warna disebut...", opt: ["A. Sel kerucut (Cone)", "B. Sel batang (Rod)", "C. Bintik kuning", "D. Saraf optik"], ans: 1, type: "LOTS", bahas: "Sel batang berfungsi dalam penglihatan pada kondisi cahaya redup/gelap, sedangkan sel kerucut untuk kondisi terang dan pengenalan warna." },
+            { q: "Ketika kita berpindah dari tempat terang terik ke dalam ruangan yang redup, awalnya penglihatan menjadi gelap sesaat. Secara fisiologis, hal ini terjadi karena...", opt: ["A. Otot siliaris sedang memipihkan lensa mata", "B. Iris membutuhkan waktu untuk melebarkan pupil", "C. Sel kerucut tiba-tiba rusak", "D. Retina kekurangan suplai darah sesaat"], ans: 1, type: "MOTS", bahas: "Di tempat terang pupil mengecil. Saat tiba di tempat redup, iris butuh beberapa detik untuk relaksasi dan melebarkan pupil agar lebih banyak cahaya masuk." },
+
+            // Panca Indra - Telinga
+            { q: "Tulang-tulang pendengaran yang berada di telinga bagian tengah secara berurutan dari luar ke dalam adalah...", opt: ["A. Martil - Landasan - Sanggurdi", "B. Sanggurdi - Landasan - Martil", "C. Landasan - Martil - Sanggurdi", "D. Martil - Sanggurdi - Landasan"], ans: 0, type: "LOTS", bahas: "Urutan tulang pendengaran (Osikula) dari membran timpani ke dalam adalah Malleus (Martil), Inkus (Landasan), Stapes (Sanggurdi)." },
+            { q: "Saluran Eustachius merupakan saluran yang menghubungkan...", opt: ["A. Telinga luar dengan telinga tengah", "B. Telinga tengah dengan rongga mulut/faring", "C. Telinga dalam dengan otak", "D. Koklea dengan saluran gelang"], ans: 1, type: "LOTS", bahas: "Saluran Eustachius menghubungkan rongga telinga tengah dengan faring (kerongkongan) untuk menyeimbangkan tekanan udara." },
+            { q: "Saat naik pesawat terbang pada ketinggian tertentu, telinga kadang terasa berdengung dan sakit. Tindakan menelan ludah atau menguap dapat menghilangkan keluhan tersebut karena...", opt: ["A. Membuka saluran Eustachius sehingga tekanan udara di telinga tengah dan luar seimbang", "B. Menggerakkan tulang pendengaran agar lebih fleksibel", "C. Menarik gendang telinga agar lebih kencang", "D. Mencegah cairan masuk ke dalam koklea"], ans: 0, type: "MOTS", bahas: "Gerakan menelan membuka katup saluran Eustachius, memungkinkan udara masuk atau keluar dari telinga tengah agar tekanan sama dengan lingkungan sekitar." },
+            { q: "Reseptor pendengaran (Organ Korti) yang berfungsi mengubah getaran mekanik menjadi impuls saraf terletak di bagian...", opt: ["A. Membran timpani", "B. Tiga saluran setengah lingkaran", "C. Rumah siput (Koklea)", "D. Tingkap jorong"], ans: 2, type: "LOTS", bahas: "Di dalam koklea (rumah siput) terdapat organ Korti yang berisi sel-sel rambut sebagai reseptor suara sejati." },
+
+            // Panca Indra - Hidung & Lidah
+            { q: "Reseptor pembau pada rongga hidung berupa ujung-ujung saraf olfaktori. Agar zat bau dapat merangsang saraf tersebut, syarat utamanya adalah...", opt: ["A. Zat bau harus berupa partikel padat", "B. Zat tersebut bersuhu tinggi", "C. Zat bau harus larut dalam lendir hidung", "D. Zat bau masuk melalui mulut"], ans: 2, type: "MOTS", bahas: "Partikel gas kemoreseptor harus larut terlebih dahulu dalam selaput lendir (mukus) di hidung agar dapat dideteksi oleh ujung saraf olfaktori." },
+            { q: "Bintil-bintil kecil pada permukaan lidah yang di dalamnya terdapat puting pengecap disebut...", opt: ["A. Papila", "B. Tonsil", "C. Epiglotis", "D. Mukosa"], ans: 0, type: "LOTS", bahas: "Papila adalah tonjolan-tonjolan kecil di permukaan lidah tempat berkumpulnya tunas pengecap." },
+            { q: "Penderita anosmia seringkali mengeluhkan makanan yang mereka makan terasa hambar. Hubungan fisiologis yang tepat menjelaskan hal ini adalah...", opt: ["A. Reseptor pengecap lidah rusak bersamaan dengan saraf hidung", "B. Cita rasa makanan merupakan kombinasi antara rangsangan pengecap di lidah dan pembau di hidung", "C. Hidung tersumbat menyebabkan enzim amilase di mulut tidak bekerja", "D. Makanan tidak dapat dikunyah dengan baik jika hidung tidak berfungsi"], ans: 1, type: "MOTS", bahas: "Rasa makanan yang kita persepsikan (flavour) sebenarnya adalah gabungan stimulasi dari papila lidah dan reseptor olfaktori di hidung." },
+            { q: "Rasa pahit umumnya dideteksi paling peka oleh papila yang terletak di bagian...", opt: ["A. Ujung lidah", "B. Samping depan lidah", "C. Samping belakang lidah", "D. Pangkal lidah (belakang)"], ans: 3, type: "LOTS", bahas: "Walaupun seluruh lidah bisa mengecap semua rasa, pangkal lidah memiliki kepekaan tertinggi terhadap rasa pahit." },
+
+            // Panca Indra - Kulit & Umum
+            { q: "Reseptor pada kulit yang peka terhadap rangsangan tekanan kuat (misalnya saat kita memijat bahu) adalah...", opt: ["A. Korpuskula Pacini", "B. Korpuskula Meissner", "C. Korpuskula Ruffini", "D. Korpuskula Krause"], ans: 0, type: "LOTS", bahas: "Korpuskula Pacini berada di lapisan kulit dalam dan peka terhadap rangsangan tekanan kuat. Meissner untuk sentuhan, Ruffini untuk panas, Krause untuk dingin." },
+            { q: "Saat cuaca sangat dingin, rambut-rambut halus di permukaan kulit kita akan berdiri (merinding). Mekanisme ini diatur oleh...", opt: ["A. Kelenjar keringat memompa air", "B. Kontraksi otot polos penegak rambut oleh saraf otonom", "C. Pelebaran pembuluh darah di bawah kulit", "D. Saraf pusat secara sadar"], ans: 1, type: "MOTS", bahas: "Otot penegak rambut (muskulus arektor pili) berkontraksi akibat respons saraf simpatis untuk menjebak udara sebagai isolator panas (merinding)." },
+            { q: "Kemampuan tubuh untuk mempertahankan keseimbangan kondisi internal (seperti suhu tubuh dan kadar gula darah) agar selalu stabil berkat kerja sistem saraf dan hormon disebut...", opt: ["A. Adaptasi", "B. Iritabilitas", "C. Homeostasis", "D. Metabolisme"], ans: 2, type: "LOTS", bahas: "Homeostasis adalah proses pengaturan fisiologis tubuh untuk mempertahankan keadaan internal yang stabil." },
+            { q: "Seseorang yang sering mengonsumsi minuman keras (alkohol) dalam jangka panjang akan mengalami penurunan respon gerak tubuh dan bicara cadel. Alkohol utamanya menekan kerja dari...", opt: ["A. Sistem Saraf Pusat", "B. Sistem Saraf Tepi", "C. Kelenjar Tiroid", "D. Sumsum tulang belakang"], ans: 0, type: "MOTS", bahas: "Alkohol bersifat depresan yang menekan fungsi sistem saraf pusat (otak), menyebabkan lambatnya respons, hilangnya keseimbangan, dan bicara tidak jelas." },
+            { q: "Obat bius lokal yang disuntikkan oleh dokter gigi saat mencabut gigi bekerja dengan cara...", opt: ["A. Membunuh sel-sel saraf pada gusi", "B. Memutus jalur saraf motorik saja", "C. Menghambat penghantaran impuls rasa sakit pada saraf sensorik lokal", "D. Menidurkan otak besar pasien"], ans: 2, type: "MOTS", bahas: "Bius lokal bekerja secara spesifik mengeblok saluran ion natrium pada membran neuron setempat, sehingga impuls rasa sakit (sensorik) tidak dapat dikirim ke otak." }
+        ];
+
+        // --- VARIABEL GLOBAL ---
+        let namaSiswa = "";
+        let emailSiswa = "";
+        let totalTime = 45 * 60; // 45 Menit dalam detik
+        let timerInterval;
+        let isExamActive = false;
+        let cheatCount = 0;
+        let currentIndex = 0;
+        let answers = new Array(bankSoal.length).fill(null);
+
+        // --- FUNGSI UTAMA ---
+        function mulaiUjian() {
+            namaSiswa = document.getElementById("nama").value.trim();
+            emailSiswa = document.getElementById("email").value.trim();
+            
+            if (!namaSiswa || !emailSiswa) {
+                alert("Harap isi Nama dan Email dengan lengkap!");
+                return;
+            }
+
+            // Memaksa mode Fullscreen
+            let elem = document.documentElement;
+            if (elem.requestFullscreen) { elem.requestFullscreen(); }
+            else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); } // Safari/Chrome Mobile
+            else if (elem.msRequestFullscreen) { elem.msRequestFullscreen(); } // IE11
+
+            document.getElementById("loginPage").classList.add("hidden");
+            document.getElementById("examPage").classList.remove("hidden");
+            document.getElementById("identitasSiswa").innerText = `${namaSiswa} | ${emailSiswa}`;
+            
+            isExamActive = true;
+            buatPanelNavigasi();
+            tampilkanSoal(0);
+            
+            // Mulai Timer
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        // --- NAVIGASI SOAL ---
+        function buatPanelNavigasi() {
+            const panel = document.getElementById("panelGrid");
+            panel.innerHTML = "";
+            for (let i = 0; i < bankSoal.length; i++) {
+                const btn = document.createElement("div");
+                btn.className = "btn-nav";
+                btn.innerText = i + 1;
+                btn.id = "navBtn_" + i;
+                btn.onclick = () => tampilkanSoal(i);
+                panel.appendChild(btn);
+            }
+        }
+
+        function tampilkanSoal(index) {
+            // Update UI Navigasi
+            document.querySelectorAll(".btn-nav").forEach(el => el.classList.remove("current"));
+            document.getElementById("navBtn_" + index).classList.add("current");
+            
+            currentIndex = index;
+            const qData = bankSoal[index];
+            
+            const badge = document.getElementById("badgeDiff");
+            badge.innerText = qData.type;
+            badge.className = `badge-diff ${qData.type === 'LOTS' ? 'badge-lots' : 'badge-mots'}`;
+            
+            document.getElementById("questionText").innerHTML = `<b>Soal No ${index + 1}.</b><br>${qData.q}`;
+            
+            const optsContainer = document.getElementById("optionsContainer");
+            optsContainer.innerHTML = "";
+            
+            qData.opt.forEach((opsi, i) => {
+                const lbl = document.createElement("label");
+                lbl.className = "option-label";
+                if (answers[index] === i) lbl.classList.add("selected");
+                
+                const inp = document.createElement("input");
+                inp.type = "radio";
+                inp.name = "radioOpsi";
+                inp.value = i;
+                if (answers[index] === i) inp.checked = true;
+                
+                inp.onchange = () => pilihJawaban(index, i, lbl);
+                
+                lbl.appendChild(inp);
+                lbl.appendChild(document.createTextNode(opsi));
+                optsContainer.appendChild(lbl);
+            });
+
+            document.getElementById("btnPrev").style.visibility = (index === 0) ? "hidden" : "visible";
+            document.getElementById("btnNext").style.visibility = (index === bankSoal.length - 1) ? "hidden" : "visible";
+        }
+
+        function pilihJawaban(qIndex, optIndex, labelElement) {
+            answers[qIndex] = optIndex;
+            document.querySelectorAll(".option-label").forEach(el => el.classList.remove("selected"));
+            labelElement.classList.add("selected");
+            document.getElementById("navBtn_" + qIndex).classList.add("answered");
+        }
+
+        function changeQuestion(step) {
+            let nextIndex = currentIndex + step;
+            if (nextIndex >= 0 && nextIndex < bankSoal.length) tampilkanSoal(nextIndex);
+        }
+
+        function skipQuestion() {
+            let found = false;
+            for (let i = currentIndex + 1; i < bankSoal.length; i++) {
+                if (answers[i] === null) {
+                    tampilkanSoal(i);
+                    found = true;
+                    break;
+                }
+            }
+            if(!found) {
+                for(let i = 0; i < bankSoal.length; i++){
+                    if (answers[i] === null) {
+                        tampilkanSoal(i);
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            if(!found) alert("Semua soal sudah dijawab! Silakan tekan tombol Selesai di bawah panel nomor.");
+        }
+
+        // --- TIMER ---
+        function updateTimer() {
+            if (totalTime <= 0) {
+                kalkulasiDanKirim("Selesai Waktu Habis");
+                return;
+            }
+            totalTime--;
+            let m = Math.floor(totalTime / 60);
+            let s = totalTime % 60;
+            document.getElementById("timerDisplay").innerText = 
+                (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+        }
+
+        // --- ANTI CHEAT ---
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden && isExamActive) {
+                cheatCount++;
+                alert(`PELANGGARAN! Anda terdeteksi keluar dari layar ujian. Peringatan ke: ${cheatCount}/2`);
+                if (cheatCount >= 2) {
+                    alert("Anda Dikeluarkan dari Ujian (Diskualifikasi).");
+                    kalkulasiDanKirim("Diskualifikasi");
+                }
+            }
+        });
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () { history.go(1); };
+
+        // --- PENYELESAIAN ---
+        function konfirmasiSelesai() {
+            const blmDijawab = answers.filter(a => a === null).length;
+            if (blmDijawab > 0) {
+                if(!confirm(`Ada ${blmDijawab} soal belum dijawab! Yakin ingin menyelesaikan ujian?`)) return;
+            } else {
+                if(!confirm("Yakin ingin menyelesaikan ujian dan mengirim jawaban?")) return;
+            }
+            kalkulasiDanKirim("Selesai Normal");
+        }
+
+        function kalkulasiDanKirim(statusUjian) {
+            isExamActive = false;
+            clearInterval(timerInterval);
+            
+            let benar = 0;
+            // Menyusun format rekap jawaban untuk dikirim ke Admin
+            let stringJawabanSiswa = answers.map((ans, idx) => {
+                let opsiHuruf = (ans === 0) ? "A" : (ans === 1) ? "B" : (ans === 2) ? "C" : (ans === 3) ? "D" : "-";
+                if (ans === bankSoal[idx].ans) benar++;
+                return `No.${idx+1}:${opsiHuruf}`;
+            }).join(" | ");
+            
+            let nilai = Math.round((benar / bankSoal.length) * 100);
+
+            let payload = {
+                nama: namaSiswa,
+                email: emailSiswa,
+                skor: statusUjian === "Diskualifikasi" ? 0 : nilai,
+                status: statusUjian,
+                detailJawaban: stringJawabanSiswa // Properti baru dikirim ke Google Sheets
+            };
+
+            // KIRIM KE GOOGLE SHEETS
+            // =========================================================================
+            // GANTI URL DI BAWAH INI DENGAN URL WEB APP GOOGLE SCRIPT ANDA!
+            let gasURL = "URL_GOOGLE_APPS_SCRIPT_ANDA_DISINI"; 
+            // =========================================================================
+
+            document.body.style.cursor = 'wait';
+            tampilkanHasilDanPembahasan(nilai);
+
+            fetch(gasURL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            }).then(() => {
+                document.body.style.cursor = 'default';
+            }).catch(e => {
+                document.body.style.cursor = 'default';
+            });
+        }
+
+        function tampilkanHasilDanPembahasan(skorAkhir) {
+            if (document.exitFullscreen) { document.exitFullscreen(); }
+            else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
+
+            document.getElementById("examPage").classList.add("hidden");
+            document.getElementById("resultPage").classList.remove("hidden");
+            
+            document.getElementById("resNama").innerText = namaSiswa;
+            document.getElementById("resSkor").innerText = skorAkhir;
+
+            const box = document.getElementById("discussionContainer");
+            box.innerHTML = "";
+
+            bankSoal.forEach((q, i) => {
+                const jwbSiswa = answers[i];
+                const isBenar = jwbSiswa === q.ans;
+                let jwbTeks = jwbSiswa !== null ? q.opt[jwbSiswa] : "<i>Tidak Dijawab</i>";
+                
+                const item = document.createElement("div");
+                item.className = `result-item ${isBenar ? 'correct-ans' : 'wrong-ans'}`;
+                
+                item.innerHTML = `
+                    <b>Soal No ${i + 1} (${q.type})</b>
+                    <p>${q.q}</p>
+                    <p>Jawaban Anda: <b>${jwbTeks}</b> ${isBenar ? '✅' : '❌'}</p>
+                    <p>Kunci Jawaban: <b>${q.opt[q.ans]}</b></p>
+                    <div class="discussion"><b>Pembahasan:</b> ${q.bahas}</div>
+                `;
+                box.appendChild(item);
+            });
+        }
+    </script>
+</body>
+</html>
