@@ -61,7 +61,7 @@
         /* MEDIA QUERY UNTUK HP (PHONE MODE) */
         @media (max-width: 768px) {
             .container { margin: 0; padding: 15px; border-radius: 0; min-height: 100vh; }
-            .exam-layout { flex-direction: column; } /* Mengubah tata letak menjadi vertikal */
+            .exam-layout { flex-direction: column; }
             .sidebar { max-height: none; overflow-y: visible; margin-top: 20px; }
             .action-buttons button { font-size: 0.9em; padding: 10px; }
             .panel-grid { grid-template-columns: repeat(6, 1fr); }
@@ -75,7 +75,7 @@
     <!-- HALAMAN LOGIN -->
     <div id="loginPage" class="container">
         <h2 style="text-align: center; color: var(--primary);">Ujian Akhir: Sistem Koordinasi & Panca Indra</h2>
-        <p style="text-align: center;">Mata Pelajaran: IPA Kelas 9 | Durasi: 45 Menit | Jumlah: 30 Soal</p>
+        <p style="text-align: center;">Mata Pelajaran: IPA Kelas 9 | Durasi: 45 Menit</p>
         <hr>
         <label>Nama Lengkap (Sesuai Absen):</label>
         <input type="text" id="nama" placeholder="Masukkan nama lengkap" required>
@@ -84,10 +84,10 @@
         
         <div style="background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin-bottom: 20px; font-size: 0.9em;">
             <strong>⚠️ PERHATIAN PENTING:</strong><br>
-            1. Ujian ini menggunakan sistem <b>Anti-Cheat</b>.<br>
+            1. <b>Soal & Opsi Jawaban diacak</b> untuk setiap siswa.<br>
             2. Layar akan masuk mode penuh (Fullscreen).<br>
             3. Dilarang keras menekan tombol Home, berpindah aplikasi, membagi layar, atau membuka tab lain.<br>
-            4. Pelanggaran lebih dari 2 kali akan mengakibatkan <b>DISKUALIFIKASI</b> otomatis.
+            4. Pelanggaran lebih dari 2 kali akan mengakibatkan <b>DISKUALIFIKASI</b>.
         </div>
         
         <button class="btn-primary" style="width: 100%; padding: 15px; font-size: 1.1em;" onclick="mulaiUjian()">Saya Mengerti, Mulai Ujian</button>
@@ -137,60 +137,69 @@
     </div>
 
     <script>
-        // --- DATABASE 30 SOAL ---
+        // --- DATABASE SOAL (Telah ditambahkan ID Asli untuk rekap guru) ---
         const bankSoal = [
-            // (Untuk memperpendek respons, saya masukkan kembali 30 soal yang sama persis seperti sebelumnya)
-            { q: "Unit terkecil penyusun sistem saraf manusia disebut...", opt: ["A. Nefron", "B. Neuron", "C. Alveolus", "D. Dendrit"], ans: 1, type: "LOTS", bahas: "Unit fungsional terkecil penyusun sistem saraf adalah sel saraf atau neuron." },
-            { q: "Bagian dari sel saraf yang berfungsi menerima impuls dari sel saraf lain dan meneruskannya ke badan sel adalah...", opt: ["A. Akson", "B. Nodus Ranvier", "C. Dendrit", "D. Sel Schwann"], ans: 2, type: "LOTS", bahas: "Dendrit adalah tonjolan sitoplasma pada badan sel yang berfungsi menerima impuls dan meneruskannya ke badan sel." },
-            { q: "Andi menginjak paku payung dan secara refleks menarik kakinya. Urutan jalannya impuls pada gerak refleks tersebut adalah...", opt: ["A. Reseptor - saraf sensorik - otak - saraf motorik - efektor", "B. Reseptor - saraf motorik - sumsum tulang belakang - saraf sensorik - efektor", "C. Reseptor - saraf sensorik - sumsum tulang belakang - saraf motorik - efektor", "D. Efektor - saraf sensorik - sumsum tulang belakang - saraf motorik - reseptor"], ans: 2, type: "MOTS", bahas: "Jalan impuls gerak refleks tidak melewati otak sebagai pusat pengolah utama, melainkan melalui jalan pintas yaitu sumsum tulang belakang." },
-            { q: "Sistem saraf pusat manusia terdiri atas...", opt: ["A. Otak dan serabut saraf", "B. Otak dan sumsum tulang belakang", "C. Sumsum tulang belakang dan saraf tepi", "D. Saraf simpatis dan parasimpatis"], ans: 1, type: "LOTS", bahas: "Saraf pusat merupakan pusat koordinasi yang terdiri dari otak dan sumsum tulang belakang (medula spinalis)." },
-            { q: "Seseorang yang mengalami benturan keras di kepala bagian belakang mengalami kesulitan menjaga keseimbangan tubuh saat berjalan. Bagian otak yang kemungkinan besar mengalami gangguan adalah...", opt: ["A. Serebrum (Otak besar)", "B. Serebelum (Otak kecil)", "C. Medula oblongata (Sumsum lanjutan)", "D. Hipotalamus"], ans: 1, type: "MOTS", bahas: "Otak kecil (Serebelum) yang terletak di bawah otak besar bagian belakang berfungsi sebagai pusat keseimbangan dan koordinasi gerak otot." },
-            { q: "Celah pertemuan antara ujung akson suatu neuron dengan dendrit neuron lainnya disebut...", opt: ["A. Sinapsis", "B. Nodus Ranvier", "C. Myelin", "D. Ganglion"], ans: 0, type: "LOTS", bahas: "Sinapsis adalah celah yang menghubungkan antar neuron. Di sini impuls diteruskan dengan bantuan neurotransmiter." },
-            { q: "Perhatikan fungsi saraf otonom berikut! 1) Mempercepat denyut jantung. 2) Memperbesar pupil mata. 3) Menghambat pencernaan. Saraf yang bekerja memberikan efek tersebut adalah...", opt: ["A. Saraf Somatik", "B. Saraf Kranial", "C. Saraf Parasimpatis", "D. Saraf Simpatis"], ans: 3, type: "MOTS", bahas: "Saraf simpatis umumnya bekerja untuk memacu kerja organ dalam kondisi siaga (fight or flight), seperti mempercepat detak jantung dan melebarkan pupil." },
-            { q: "Selaput pembungkus otak dan sumsum tulang belakang yang berfungsi melindunginya dari benturan disebut...", opt: ["A. Pleura", "B. Perikardium", "C. Meninges", "D. Periosteum"], ans: 2, type: "LOTS", bahas: "Meninges adalah selaput pelindung sistem saraf pusat (otak dan sumsum tulang belakang). Terdiri dari piameter, arakhnoid, dan durameter." },
-            
-            // Sistem Endokrin (Hormon)
-            { q: "Kelenjar endokrin disebut juga kelenjar buntu karena...", opt: ["A. Tidak memiliki saluran pengeluaran khusus", "B. Hormon yang dihasilkan langsung dibuang", "C. Hanya aktif pada masa pubertas", "D. Terletak di organ yang tersembunyi"], ans: 0, type: "LOTS", bahas: "Disebut kelenjar buntu karena sekresi kelenjar (hormon) langsung disalurkan ke pembuluh darah tanpa melalui saluran (duktus) khusus." },
-            { q: "Pak Budi divonis dokter menderita Diabetes Melitus karena tingginya kadar glukosa dalam darahnya. Hal ini disebabkan oleh gangguan produksi hormon...", opt: ["A. Tiroksin oleh kelenjar tiroid", "B. Adrenalin oleh kelenjar adrenal", "C. Insulin oleh kelenjar pankreas", "D. Estrogen oleh ovarium"], ans: 2, type: "MOTS", bahas: "Insulin diproduksi oleh kelenjar pankreas (pulau Langerhans) yang berfungsi mengubah glukosa menjadi glikogen. Kekurangannya menyebabkan diabetes." },
-            { q: "Hormon yang berfungsi memacu pertumbuhan sekunder pada remaja laki-laki, seperti tumbuhnya kumis dan membesarnya pita suara adalah...", opt: ["A. Progesteron", "B. Testosteron", "C. Estrogen", "D. Prolaktin"], ans: 1, type: "LOTS", bahas: "Testosteron dihasilkan oleh testis pada pria yang memicu perkembangan ciri kelamin sekunder jantan." },
-            { q: "Saat seekor anjing ganas tiba-tiba mengejar kita, jantung berdebar kencang dan kita berlari sangat cepat tanpa disadari. Kelenjar yang sangat aktif memproduksi hormon saat kondisi ini adalah...", opt: ["A. Kelenjar Adrenal (Anak ginjal)", "B. Kelenjar Pituitari (Hipofisis)", "C. Kelenjar Paratiroid", "D. Kelenjar Timus"], ans: 0, type: "MOTS", bahas: "Kelenjar adrenal menghasilkan hormon adrenalin/epinefrin yang dipicu oleh stres atau ancaman, meningkatkan gula darah dan detak jantung untuk energi instan." },
-            { q: "Kelenjar hipofisis (pituitari) sering disebut sebagai 'Master of Gland' karena...", opt: ["A. Kelenjar terbesar di dalam tubuh", "B. Terletak di pusat otak", "C. Menghasilkan hormon yang mengatur kelenjar endokrin lain", "D. Mengatur kecerdasan dan memori manusia"], ans: 2, type: "MOTS", bahas: "Hipofisis disebut Master of Gland karena hormon yang disekresikannya mengatur dan menstimulasi kerja kelenjar endokrin lainnya." },
-
-            // Panca Indra - Mata
-            { q: "Bagian mata yang berfungsi mengatur jumlah cahaya yang masuk ke dalam mata dengan cara menyempitkan atau melebarkan pupil adalah...", opt: ["A. Kornea", "B. Retina", "C. Lensa", "D. Iris"], ans: 3, type: "LOTS", bahas: "Iris (selaput pelangi) adalah otot berwarna pada mata yang mengatur ukuran pupil sesuai intensitas cahaya." },
-            { q: "Pada penderita miopi (rabun jauh), bayangan benda jatuh di depan retina. Untuk membantu penderita miopi agar dapat melihat normal, dibutuhkan kacamata berlensa...", opt: ["A. Cembung (Positif)", "B. Cekung (Negatif)", "C. Silindris", "D. Ganda (Bifokal)"], ans: 1, type: "MOTS", bahas: "Lensa cekung (divergen) akan memencarkan cahaya sebelum masuk ke mata, sehingga bayangan yang awalnya jatuh di depan retina dapat mundur pas ke retina." },
-            { q: "Sel fotoreseptor pada retina yang peka terhadap cahaya redup dan tidak dapat membedakan warna disebut...", opt: ["A. Sel kerucut (Cone)", "B. Sel batang (Rod)", "C. Bintik kuning", "D. Saraf optik"], ans: 1, type: "LOTS", bahas: "Sel batang berfungsi dalam penglihatan pada kondisi cahaya redup/gelap, sedangkan sel kerucut untuk kondisi terang dan pengenalan warna." },
-            { q: "Ketika kita berpindah dari tempat terang terik ke dalam ruangan yang redup, awalnya penglihatan menjadi gelap sesaat. Secara fisiologis, hal ini terjadi karena...", opt: ["A. Otot siliaris sedang memipihkan lensa mata", "B. Iris membutuhkan waktu untuk melebarkan pupil", "C. Sel kerucut tiba-tiba rusak", "D. Retina kekurangan suplai darah sesaat"], ans: 1, type: "MOTS", bahas: "Di tempat terang pupil mengecil. Saat tiba di tempat redup, iris butuh beberapa detik untuk relaksasi dan melebarkan pupil agar lebih banyak cahaya masuk." },
-
-            // Panca Indra - Telinga
-            { q: "Tulang-tulang pendengaran yang berada di telinga bagian tengah secara berurutan dari luar ke dalam adalah...", opt: ["A. Martil - Landasan - Sanggurdi", "B. Sanggurdi - Landasan - Martil", "C. Landasan - Martil - Sanggurdi", "D. Martil - Sanggurdi - Landasan"], ans: 0, type: "LOTS", bahas: "Urutan tulang pendengaran (Osikula) dari membran timpani ke dalam adalah Malleus (Martil), Inkus (Landasan), Stapes (Sanggurdi)." },
-            { q: "Saluran Eustachius merupakan saluran yang menghubungkan...", opt: ["A. Telinga luar dengan telinga tengah", "B. Telinga tengah dengan rongga mulut/faring", "C. Telinga dalam dengan otak", "D. Koklea dengan saluran gelang"], ans: 1, type: "LOTS", bahas: "Saluran Eustachius menghubungkan rongga telinga tengah dengan faring (kerongkongan) untuk menyeimbangkan tekanan udara." },
-            { q: "Saat naik pesawat terbang pada ketinggian tertentu, telinga kadang terasa berdengung dan sakit. Tindakan menelan ludah atau menguap dapat menghilangkan keluhan tersebut karena...", opt: ["A. Membuka saluran Eustachius sehingga tekanan udara di telinga tengah dan luar seimbang", "B. Menggerakkan tulang pendengaran agar lebih fleksibel", "C. Menarik gendang telinga agar lebih kencang", "D. Mencegah cairan masuk ke dalam koklea"], ans: 0, type: "MOTS", bahas: "Gerakan menelan membuka katup saluran Eustachius, memungkinkan udara masuk atau keluar dari telinga tengah agar tekanan sama dengan lingkungan sekitar." },
-            { q: "Reseptor pendengaran (Organ Korti) yang berfungsi mengubah getaran mekanik menjadi impuls saraf terletak di bagian...", opt: ["A. Membran timpani", "B. Tiga saluran setengah lingkaran", "C. Rumah siput (Koklea)", "D. Tingkap jorong"], ans: 2, type: "LOTS", bahas: "Di dalam koklea (rumah siput) terdapat organ Korti yang berisi sel-sel rambut sebagai reseptor suara sejati." },
-
-            // Panca Indra - Hidung & Lidah
-            { q: "Reseptor pembau pada rongga hidung berupa ujung-ujung saraf olfaktori. Agar zat bau dapat merangsang saraf tersebut, syarat utamanya adalah...", opt: ["A. Zat bau harus berupa partikel padat", "B. Zat tersebut bersuhu tinggi", "C. Zat bau harus larut dalam lendir hidung", "D. Zat bau masuk melalui mulut"], ans: 2, type: "MOTS", bahas: "Partikel gas kemoreseptor harus larut terlebih dahulu dalam selaput lendir (mukus) di hidung agar dapat dideteksi oleh ujung saraf olfaktori." },
-            { q: "Bintil-bintil kecil pada permukaan lidah yang di dalamnya terdapat puting pengecap disebut...", opt: ["A. Papila", "B. Tonsil", "C. Epiglotis", "D. Mukosa"], ans: 0, type: "LOTS", bahas: "Papila adalah tonjolan-tonjolan kecil di permukaan lidah tempat berkumpulnya tunas pengecap." },
-            { q: "Penderita anosmia seringkali mengeluhkan makanan yang mereka makan terasa hambar. Hubungan fisiologis yang tepat menjelaskan hal ini adalah...", opt: ["A. Reseptor pengecap lidah rusak bersamaan dengan saraf hidung", "B. Cita rasa makanan merupakan kombinasi antara rangsangan pengecap di lidah dan pembau di hidung", "C. Hidung tersumbat menyebabkan enzim amilase di mulut tidak bekerja", "D. Makanan tidak dapat dikunyah dengan baik jika hidung tidak berfungsi"], ans: 1, type: "MOTS", bahas: "Rasa makanan yang kita persepsikan (flavour) sebenarnya adalah gabungan stimulasi dari papila lidah dan reseptor olfaktori di hidung." },
-            { q: "Rasa pahit umumnya dideteksi paling peka oleh papila yang terletak di bagian...", opt: ["A. Ujung lidah", "B. Samping depan lidah", "C. Samping belakang lidah", "D. Pangkal lidah (belakang)"], ans: 3, type: "LOTS", bahas: "Walaupun seluruh lidah bisa mengecap semua rasa, pangkal lidah memiliki kepekaan tertinggi terhadap rasa pahit." },
-
-            // Panca Indra - Kulit & Umum
-            { q: "Reseptor pada kulit yang peka terhadap rangsangan tekanan kuat (misalnya saat kita memijat bahu) adalah...", opt: ["A. Korpuskula Pacini", "B. Korpuskula Meissner", "C. Korpuskula Ruffini", "D. Korpuskula Krause"], ans: 0, type: "LOTS", bahas: "Korpuskula Pacini berada di lapisan kulit dalam dan peka terhadap rangsangan tekanan kuat. Meissner untuk sentuhan, Ruffini untuk panas, Krause untuk dingin." },
-            { q: "Saat cuaca sangat dingin, rambut-rambut halus di permukaan kulit kita akan berdiri (merinding). Mekanisme ini diatur oleh...", opt: ["A. Kelenjar keringat memompa air", "B. Kontraksi otot polos penegak rambut oleh saraf otonom", "C. Pelebaran pembuluh darah di bawah kulit", "D. Saraf pusat secara sadar"], ans: 1, type: "MOTS", bahas: "Otot penegak rambut (muskulus arektor pili) berkontraksi akibat respons saraf simpatis untuk menjebak udara sebagai isolator panas (merinding)." },
-            { q: "Kemampuan tubuh untuk mempertahankan keseimbangan kondisi internal (seperti suhu tubuh dan kadar gula darah) agar selalu stabil berkat kerja sistem saraf dan hormon disebut...", opt: ["A. Adaptasi", "B. Iritabilitas", "C. Homeostasis", "D. Metabolisme"], ans: 2, type: "LOTS", bahas: "Homeostasis adalah proses pengaturan fisiologis tubuh untuk mempertahankan keadaan internal yang stabil." },
-            { q: "Seseorang yang sering mengonsumsi minuman keras (alkohol) dalam jangka panjang akan mengalami penurunan respon gerak tubuh dan bicara cadel. Alkohol utamanya menekan kerja dari...", opt: ["A. Sistem Saraf Pusat", "B. Sistem Saraf Tepi", "C. Kelenjar Tiroid", "D. Sumsum tulang belakang"], ans: 0, type: "MOTS", bahas: "Alkohol bersifat depresan yang menekan fungsi sistem saraf pusat (otak), menyebabkan lambatnya respons, hilangnya keseimbangan, dan bicara tidak jelas." },
-            { q: "Obat bius lokal yang disuntikkan oleh dokter gigi saat mencabut gigi bekerja dengan cara...", opt: ["A. Membunuh sel-sel saraf pada gusi", "B. Memutus jalur saraf motorik saja", "C. Menghambat penghantaran impuls rasa sakit pada saraf sensorik lokal", "D. Menidurkan otak besar pasien"], ans: 2, type: "MOTS", bahas: "Bius lokal bekerja secara spesifik mengeblok saluran ion natrium pada membran neuron setempat, sehingga impuls rasa sakit (sensorik) tidak dapat dikirim ke otak." }
+            { id: 1, q: "Unit terkecil penyusun sistem saraf manusia disebut...", opt: ["A. Nefron", "B. Neuron", "C. Alveolus", "D. Dendrit"], ans: 1, type: "LOTS", bahas: "Unit fungsional terkecil penyusun sistem saraf adalah sel saraf atau neuron." },
+            { id: 2, q: "Bagian dari sel saraf yang berfungsi menerima impuls dari sel saraf lain dan meneruskannya ke badan sel adalah...", opt: ["A. Akson", "B. Nodus Ranvier", "C. Dendrit", "D. Sel Schwann"], ans: 2, type: "LOTS", bahas: "Dendrit adalah tonjolan sitoplasma pada badan sel yang berfungsi menerima impuls dan meneruskannya ke badan sel." },
+            { id: 3, q: "Andi menginjak paku payung dan secara refleks menarik kakinya. Urutan jalannya impuls pada gerak refleks tersebut adalah...", opt: ["A. Reseptor - saraf sensorik - otak - saraf motorik - efektor", "B. Reseptor - saraf motorik - sumsum tulang belakang - saraf sensorik - efektor", "C. Reseptor - saraf sensorik - sumsum tulang belakang - saraf motorik - efektor", "D. Efektor - saraf sensorik - sumsum tulang belakang - saraf motorik - reseptor"], ans: 2, type: "MOTS", bahas: "Jalan impuls gerak refleks tidak melewati otak sebagai pusat pengolah utama, melainkan melalui jalan pintas yaitu sumsum tulang belakang." },
+            { id: 4, q: "Sistem saraf pusat manusia terdiri atas...", opt: ["A. Otak dan serabut saraf", "B. Otak dan sumsum tulang belakang", "C. Sumsum tulang belakang dan saraf tepi", "D. Saraf simpatis dan parasimpatis"], ans: 1, type: "LOTS", bahas: "Saraf pusat merupakan pusat koordinasi yang terdiri dari otak dan sumsum tulang belakang (medula spinalis)." },
+            { id: 5, q: "Seseorang yang mengalami benturan keras di kepala bagian belakang mengalami kesulitan menjaga keseimbangan tubuh saat berjalan. Bagian otak yang kemungkinan besar mengalami gangguan adalah...", opt: ["A. Serebrum (Otak besar)", "B. Serebelum (Otak kecil)", "C. Medula oblongata (Sumsum lanjutan)", "D. Hipotalamus"], ans: 1, type: "MOTS", bahas: "Otak kecil (Serebelum) yang terletak di bawah otak besar bagian belakang berfungsi sebagai pusat keseimbangan dan koordinasi gerak otot." },
+            { id: 6, q: "Celah pertemuan antara ujung akson suatu neuron dengan dendrit neuron lainnya disebut...", opt: ["A. Sinapsis", "B. Nodus Ranvier", "C. Myelin", "D. Ganglion"], ans: 0, type: "LOTS", bahas: "Sinapsis adalah celah yang menghubungkan antar neuron. Di sini impuls diteruskan dengan bantuan neurotransmiter." },
+            { id: 7, q: "Perhatikan fungsi saraf otonom berikut! 1) Mempercepat denyut jantung. 2) Memperbesar pupil mata. 3) Menghambat pencernaan. Saraf yang bekerja memberikan efek tersebut adalah...", opt: ["A. Saraf Somatik", "B. Saraf Kranial", "C. Saraf Parasimpatis", "D. Saraf Simpatis"], ans: 3, type: "MOTS", bahas: "Saraf simpatis umumnya bekerja untuk memacu kerja organ dalam kondisi siaga (fight or flight), seperti mempercepat detak jantung dan melebarkan pupil." },
+            { id: 8, q: "Selaput pembungkus otak dan sumsum tulang belakang yang berfungsi melindunginya dari benturan disebut...", opt: ["A. Pleura", "B. Perikardium", "C. Meninges", "D. Periosteum"], ans: 2, type: "LOTS", bahas: "Meninges adalah selaput pelindung sistem saraf pusat (otak dan sumsum tulang belakang). Terdiri dari piameter, arakhnoid, dan durameter." },
+            { id: 9, q: "Kelenjar endokrin disebut juga kelenjar buntu karena...", opt: ["A. Tidak memiliki saluran pengeluaran khusus", "B. Hormon yang dihasilkan langsung dibuang", "C. Hanya aktif pada masa pubertas", "D. Terletak di organ yang tersembunyi"], ans: 0, type: "LOTS", bahas: "Disebut kelenjar buntu karena sekresi kelenjar (hormon) langsung disalurkan ke pembuluh darah tanpa melalui saluran (duktus) khusus." },
+            { id: 10, q: "Pak Budi divonis dokter menderita Diabetes Melitus karena tingginya kadar glukosa dalam darahnya. Hal ini disebabkan oleh gangguan produksi hormon...", opt: ["A. Tiroksin oleh kelenjar tiroid", "B. Adrenalin oleh kelenjar adrenal", "C. Insulin oleh kelenjar pankreas", "D. Estrogen oleh ovarium"], ans: 2, type: "MOTS", bahas: "Insulin diproduksi oleh kelenjar pankreas (pulau Langerhans) yang berfungsi mengubah glukosa menjadi glikogen. Kekurangannya menyebabkan diabetes." },
+            { id: 11, q: "Hormon yang berfungsi memacu pertumbuhan sekunder pada remaja laki-laki, seperti tumbuhnya kumis dan membesarnya pita suara adalah...", opt: ["A. Progesteron", "B. Testosteron", "C. Estrogen", "D. Prolaktin"], ans: 1, type: "LOTS", bahas: "Testosteron dihasilkan oleh testis pada pria yang memicu perkembangan ciri kelamin sekunder jantan." },
+            { id: 12, q: "Saat seekor anjing ganas tiba-tiba mengejar kita, jantung berdebar kencang dan kita berlari sangat cepat tanpa disadari. Kelenjar yang sangat aktif memproduksi hormon saat kondisi ini adalah...", opt: ["A. Kelenjar Adrenal (Anak ginjal)", "B. Kelenjar Pituitari (Hipofisis)", "C. Kelenjar Paratiroid", "D. Kelenjar Timus"], ans: 0, type: "MOTS", bahas: "Kelenjar adrenal menghasilkan hormon adrenalin/epinefrin yang dipicu oleh stres atau ancaman, meningkatkan gula darah dan detak jantung untuk energi instan." },
+            { id: 13, q: "Kelenjar hipofisis (pituitari) sering disebut sebagai 'Master of Gland' karena...", opt: ["A. Kelenjar terbesar di dalam tubuh", "B. Terletak di pusat otak", "C. Menghasilkan hormon yang mengatur kelenjar endokrin lain", "D. Mengatur kecerdasan dan memori manusia"], ans: 2, type: "MOTS", bahas: "Hipofisis disebut Master of Gland karena hormon yang disekresikannya mengatur dan menstimulasi kerja kelenjar endokrin lainnya." },
+            { id: 14, q: "Bagian mata yang berfungsi mengatur jumlah cahaya yang masuk ke dalam mata dengan cara menyempitkan atau melebarkan pupil adalah...", opt: ["A. Kornea", "B. Retina", "C. Lensa", "D. Iris"], ans: 3, type: "LOTS", bahas: "Iris (selaput pelangi) adalah otot berwarna pada mata yang mengatur ukuran pupil sesuai intensitas cahaya." },
+            { id: 15, q: "Pada penderita miopi (rabun jauh), bayangan benda jatuh di depan retina. Untuk membantu penderita miopi agar dapat melihat normal, dibutuhkan kacamata berlensa...", opt: ["A. Cembung (Positif)", "B. Cekung (Negatif)", "C. Silindris", "D. Ganda (Bifokal)"], ans: 1, type: "MOTS", bahas: "Lensa cekung (divergen) akan memencarkan cahaya sebelum masuk ke mata, sehingga bayangan yang awalnya jatuh di depan retina dapat mundur pas ke retina." },
+            { id: 16, q: "Sel fotoreseptor pada retina yang peka terhadap cahaya redup dan tidak dapat membedakan warna disebut...", opt: ["A. Sel kerucut (Cone)", "B. Sel batang (Rod)", "C. Bintik kuning", "D. Saraf optik"], ans: 1, type: "LOTS", bahas: "Sel batang berfungsi dalam penglihatan pada kondisi cahaya redup/gelap, sedangkan sel kerucut untuk kondisi terang dan pengenalan warna." },
+            { id: 17, q: "Ketika kita berpindah dari tempat terang terik ke dalam ruangan yang redup, awalnya penglihatan menjadi gelap sesaat. Secara fisiologis, hal ini terjadi karena...", opt: ["A. Otot siliaris sedang memipihkan lensa mata", "B. Iris membutuhkan waktu untuk melebarkan pupil", "C. Sel kerucut tiba-tiba rusak", "D. Retina kekurangan suplai darah sesaat"], ans: 1, type: "MOTS", bahas: "Di tempat terang pupil mengecil. Saat tiba di tempat redup, iris butuh beberapa detik untuk relaksasi dan melebarkan pupil agar lebih banyak cahaya masuk." },
+            { id: 18, q: "Tulang-tulang pendengaran yang berada di telinga bagian tengah secara berurutan dari luar ke dalam adalah...", opt: ["A. Martil - Landasan - Sanggurdi", "B. Sanggurdi - Landasan - Martil", "C. Landasan - Martil - Sanggurdi", "D. Martil - Sanggurdi - Landasan"], ans: 0, type: "LOTS", bahas: "Urutan tulang pendengaran (Osikula) dari membran timpani ke dalam adalah Malleus (Martil), Inkus (Landasan), Stapes (Sanggurdi)." },
+            { id: 19, q: "Saluran Eustachius merupakan saluran yang menghubungkan...", opt: ["A. Telinga luar dengan telinga tengah", "B. Telinga tengah dengan rongga mulut/faring", "C. Telinga dalam dengan otak", "D. Koklea dengan saluran gelang"], ans: 1, type: "LOTS", bahas: "Saluran Eustachius menghubungkan rongga telinga tengah dengan faring (kerongkongan) untuk menyeimbangkan tekanan udara." },
+            { id: 20, q: "Saat naik pesawat terbang pada ketinggian tertentu, telinga kadang terasa berdengung dan sakit. Tindakan menelan ludah atau menguap dapat menghilangkan keluhan tersebut karena...", opt: ["A. Membuka saluran Eustachius sehingga tekanan udara di telinga tengah dan luar seimbang", "B. Menggerakkan tulang pendengaran agar lebih fleksibel", "C. Menarik gendang telinga agar lebih kencang", "D. Mencegah cairan masuk ke dalam koklea"], ans: 0, type: "MOTS", bahas: "Gerakan menelan membuka katup saluran Eustachius, memungkinkan udara masuk atau keluar dari telinga tengah agar tekanan sama dengan lingkungan sekitar." },
+            { id: 21, q: "Reseptor pendengaran (Organ Korti) yang berfungsi mengubah getaran mekanik menjadi impuls saraf terletak di bagian...", opt: ["A. Membran timpani", "B. Tiga saluran setengah lingkaran", "C. Rumah siput (Koklea)", "D. Tingkap jorong"], ans: 2, type: "LOTS", bahas: "Di dalam koklea (rumah siput) terdapat organ Korti yang berisi sel-sel rambut sebagai reseptor suara sejati." },
+            { id: 22, q: "Reseptor pembau pada rongga hidung berupa ujung-ujung saraf olfaktori. Agar zat bau dapat merangsang saraf tersebut, syarat utamanya adalah...", opt: ["A. Zat bau harus berupa partikel padat", "B. Zat tersebut bersuhu tinggi", "C. Zat bau harus larut dalam lendir hidung", "D. Zat bau masuk melalui mulut"], ans: 2, type: "MOTS", bahas: "Partikel gas kemoreseptor harus larut terlebih dahulu dalam selaput lendir (mukus) di hidung agar dapat dideteksi oleh ujung saraf olfaktori." },
+            { id: 23, q: "Bintil-bintil kecil pada permukaan lidah yang di dalamnya terdapat puting pengecap disebut...", opt: ["A. Papila", "B. Tonsil", "C. Epiglotis", "D. Mukosa"], ans: 0, type: "LOTS", bahas: "Papila adalah tonjolan-tonjolan kecil di permukaan lidah tempat berkumpulnya tunas pengecap." },
+            { id: 24, q: "Penderita anosmia seringkali mengeluhkan makanan yang mereka makan terasa hambar. Hubungan fisiologis yang tepat menjelaskan hal ini adalah...", opt: ["A. Reseptor pengecap lidah rusak bersamaan dengan saraf hidung", "B. Cita rasa makanan merupakan kombinasi antara rangsangan pengecap di lidah dan pembau di hidung", "C. Hidung tersumbat menyebabkan enzim amilase di mulut tidak bekerja", "D. Makanan tidak dapat dikunyah dengan baik jika hidung tidak berfungsi"], ans: 1, type: "MOTS", bahas: "Rasa makanan yang kita persepsikan (flavour) sebenarnya adalah gabungan stimulasi dari papila lidah dan reseptor olfaktori di hidung." },
+            { id: 25, q: "Rasa pahit umumnya dideteksi paling peka oleh papila yang terletak di bagian...", opt: ["A. Ujung lidah", "B. Samping depan lidah", "C. Samping belakang lidah", "D. Pangkal lidah (belakang)"], ans: 3, type: "LOTS", bahas: "Walaupun seluruh lidah bisa mengecap semua rasa, pangkal lidah memiliki kepekaan tertinggi terhadap rasa pahit." },
+            { id: 26, q: "Reseptor pada kulit yang peka terhadap rangsangan tekanan kuat (misalnya saat kita memijat bahu) adalah...", opt: ["A. Korpuskula Pacini", "B. Korpuskula Meissner", "C. Korpuskula Ruffini", "D. Korpuskula Krause"], ans: 0, type: "LOTS", bahas: "Korpuskula Pacini berada di lapisan kulit dalam dan peka terhadap rangsangan tekanan kuat. Meissner untuk sentuhan, Ruffini untuk panas, Krause untuk dingin." },
+            { id: 27, q: "Saat cuaca sangat dingin, rambut-rambut halus di permukaan kulit kita akan berdiri (merinding). Mekanisme ini diatur oleh...", opt: ["A. Kelenjar keringat memompa air", "B. Kontraksi otot polos penegak rambut oleh saraf otonom", "C. Pelebaran pembuluh darah di bawah kulit", "D. Saraf pusat secara sadar"], ans: 1, type: "MOTS", bahas: "Otot penegak rambut (muskulus arektor pili) berkontraksi akibat respons saraf simpatis untuk menjebak udara sebagai isolator panas (merinding)." },
+            { id: 28, q: "Kemampuan tubuh untuk mempertahankan keseimbangan kondisi internal (seperti suhu tubuh dan kadar gula darah) agar selalu stabil berkat kerja sistem saraf dan hormon disebut...", opt: ["A. Adaptasi", "B. Iritabilitas", "C. Homeostasis", "D. Metabolisme"], ans: 2, type: "LOTS", bahas: "Homeostasis adalah proses pengaturan fisiologis tubuh untuk mempertahankan keadaan internal yang stabil." },
+            { id: 29, q: "Seseorang yang sering mengonsumsi minuman keras (alkohol) dalam jangka panjang akan mengalami penurunan respon gerak tubuh dan bicara cadel. Alkohol utamanya menekan kerja dari...", opt: ["A. Sistem Saraf Pusat", "B. Sistem Saraf Tepi", "C. Kelenjar Tiroid", "D. Sumsum tulang belakang"], ans: 0, type: "MOTS", bahas: "Alkohol bersifat depresan yang menekan fungsi sistem saraf pusat (otak), menyebabkan lambatnya respons, hilangnya keseimbangan, dan bicara tidak jelas." },
+            { id: 30, q: "Obat bius lokal yang disuntikkan oleh dokter gigi saat mencabut gigi bekerja dengan cara...", opt: ["A. Membunuh sel-sel saraf pada gusi", "B. Memutus jalur saraf motorik saja", "C. Menghambat penghantaran impuls rasa sakit pada saraf sensorik lokal", "D. Menidurkan otak besar pasien"], ans: 2, type: "MOTS", bahas: "Bius lokal bekerja secara spesifik mengeblok saluran ion natrium pada membran neuron setempat, sehingga impuls rasa sakit (sensorik) tidak dapat dikirim ke otak." }
         ];
 
         // --- VARIABEL GLOBAL ---
         let namaSiswa = "";
         let emailSiswa = "";
-        let totalTime = 45 * 60; // 45 Menit dalam detik
+        let totalTime = 45 * 60; // 45 Menit
         let timerInterval;
         let isExamActive = false;
         let cheatCount = 0;
         let currentIndex = 0;
         let answers = new Array(bankSoal.length).fill(null);
+
+        // --- FUNGSI ACAK (RANDOMIZER) ---
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function acakSoalDanOpsi() {
+            // 1. Mengacak Urutan Soal
+            shuffleArray(bankSoal);
+
+            // 2. Mengacak Urutan Opsi (A, B, C, D) di dalam tiap soal
+            bankSoal.forEach(q => {
+                let correctAnswerText = q.opt[q.ans]; // Simpan teks jawaban benar sebelum diacak
+                shuffleArray(q.opt); // Acak array opsi
+                q.ans = q.opt.indexOf(correctAnswerText); // Perbarui index jawaban benar dengan posisi terbarunya
+            });
+        }
 
         // --- FUNGSI UTAMA ---
         function mulaiUjian() {
@@ -202,11 +211,14 @@
                 return;
             }
 
+            // EKSEKUSI PENGACAKAN SOAL & OPSI
+            acakSoalDanOpsi();
+
             // Memaksa mode Fullscreen
             let elem = document.documentElement;
             if (elem.requestFullscreen) { elem.requestFullscreen(); }
-            else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); } // Safari/Chrome Mobile
-            else if (elem.msRequestFullscreen) { elem.msRequestFullscreen(); } // IE11
+            else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); }
+            else if (elem.msRequestFullscreen) { elem.msRequestFullscreen(); }
 
             document.getElementById("loginPage").classList.add("hidden");
             document.getElementById("examPage").classList.remove("hidden");
@@ -216,7 +228,6 @@
             buatPanelNavigasi();
             tampilkanSoal(0);
             
-            // Mulai Timer
             timerInterval = setInterval(updateTimer, 1000);
         }
 
@@ -235,7 +246,6 @@
         }
 
         function tampilkanSoal(index) {
-            // Update UI Navigasi
             document.querySelectorAll(".btn-nav").forEach(el => el.classList.remove("current"));
             document.getElementById("navBtn_" + index).classList.add("current");
             
@@ -261,11 +271,14 @@
                 inp.name = "radioOpsi";
                 inp.value = i;
                 if (answers[index] === i) inp.checked = true;
-                
                 inp.onchange = () => pilihJawaban(index, i, lbl);
                 
+                // Membersihkan teks opsi asli (menghapus "A. ", "B. " dll) lalu menggantinya dengan abjad urutan yang baru
+                let teksBersih = opsi.replace(/^[A-D]\.\s*/, "");
+                let abjadBaru = String.fromCharCode(65 + i); // 65 adalah kode ASCII untuk 'A'
+                
                 lbl.appendChild(inp);
-                lbl.appendChild(document.createTextNode(opsi));
+                lbl.appendChild(document.createTextNode(abjadBaru + ". " + teksBersih));
                 optsContainer.appendChild(lbl);
             });
 
@@ -290,16 +303,14 @@
             for (let i = currentIndex + 1; i < bankSoal.length; i++) {
                 if (answers[i] === null) {
                     tampilkanSoal(i);
-                    found = true;
-                    break;
+                    found = true; break;
                 }
             }
             if(!found) {
                 for(let i = 0; i < bankSoal.length; i++){
                     if (answers[i] === null) {
                         tampilkanSoal(i);
-                        found = true;
-                        break;
+                        found = true; break;
                     }
                 }
             }
@@ -315,8 +326,7 @@
             totalTime--;
             let m = Math.floor(totalTime / 60);
             let s = totalTime % 60;
-            document.getElementById("timerDisplay").innerText = 
-                (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+            document.getElementById("timerDisplay").innerText = (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
         }
 
         // --- ANTI CHEAT ---
@@ -349,11 +359,19 @@
             clearInterval(timerInterval);
             
             let benar = 0;
-            // Menyusun format rekap jawaban untuk dikirim ke Admin
+            
+            // Format Laporan Guru Diubah agar tidak membingungkan akibat diacak
+            // Mengirim format -> IDAsli:TeksJawabanSiswa(Benar/Salah)
             let stringJawabanSiswa = answers.map((ans, idx) => {
-                let opsiHuruf = (ans === 0) ? "A" : (ans === 1) ? "B" : (ans === 2) ? "C" : (ans === 3) ? "D" : "-";
-                if (ans === bankSoal[idx].ans) benar++;
-                return `No.${idx+1}:${opsiHuruf}`;
+                let qData = bankSoal[idx];
+                let isBenar = (ans === qData.ans);
+                if (isBenar) benar++;
+                
+                let statusJwb = isBenar ? "Benar" : "Salah";
+                // Bersihkan teks jawaban siswa dari "A. / B. " bawaan sistem untuk dikirim ke rekap
+                let teksPilihan = ans !== null ? qData.opt[ans].replace(/^[A-D]\.\s*/, "") : "Kosong";
+                
+                return `ID${qData.id}:${teksPilihan}(${statusJwb})`;
             }).join(" | ");
             
             let nilai = Math.round((benar / bankSoal.length) * 100);
@@ -363,10 +381,9 @@
                 email: emailSiswa,
                 skor: statusUjian === "Diskualifikasi" ? 0 : nilai,
                 status: statusUjian,
-                detailJawaban: stringJawabanSiswa // Properti baru dikirim ke Google Sheets
+                detailJawaban: stringJawabanSiswa
             };
 
-            // KIRIM KE GOOGLE SHEETS
             // =========================================================================
             // GANTI URL DI BAWAH INI DENGAN URL WEB APP GOOGLE SCRIPT ANDA!
             let gasURL = "URL_GOOGLE_APPS_SCRIPT_ANDA_DISINI"; 
@@ -403,16 +420,19 @@
             bankSoal.forEach((q, i) => {
                 const jwbSiswa = answers[i];
                 const isBenar = jwbSiswa === q.ans;
-                let jwbTeks = jwbSiswa !== null ? q.opt[jwbSiswa] : "<i>Tidak Dijawab</i>";
+                
+                // Ambil teks bersih tanpa A,B,C,D
+                let jwbTeks = jwbSiswa !== null ? q.opt[jwbSiswa].replace(/^[A-D]\.\s*/, "") : "<i>Tidak Dijawab</i>";
+                let kunciTeks = q.opt[q.ans].replace(/^[A-D]\.\s*/, "");
                 
                 const item = document.createElement("div");
                 item.className = `result-item ${isBenar ? 'correct-ans' : 'wrong-ans'}`;
                 
                 item.innerHTML = `
-                    <b>Soal No ${i + 1} (${q.type})</b>
+                    <b>Soal No ${i + 1} (${q.type}) - <small style="color:#666;">ID Soal Asli: ${q.id}</small></b>
                     <p>${q.q}</p>
                     <p>Jawaban Anda: <b>${jwbTeks}</b> ${isBenar ? '✅' : '❌'}</p>
-                    <p>Kunci Jawaban: <b>${q.opt[q.ans]}</b></p>
+                    <p>Kunci Jawaban: <b>${kunciTeks}</b></p>
                     <div class="discussion"><b>Pembahasan:</b> ${q.bahas}</div>
                 `;
                 box.appendChild(item);
