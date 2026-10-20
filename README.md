@@ -441,3 +441,170 @@
     </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin: Ujian IPA Kelas 9</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #18bc9c;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8f9fa; margin: 0; padding: 20px; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        h2 { color: var(--primary); border-bottom: 2px solid var(--light); padding-bottom: 10px; margin-top: 0; }
+        .hidden { display: none !important; }
+        
+        /* Form Login */
+        .login-box { max-width: 400px; margin: 50px auto; text-align: center; }
+        input[type="password"] { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        
+        button { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; background: var(--secondary); color: white; transition: 0.2s; }
+        button:hover { opacity: 0.9; }
+        
+        /* Tabel Data */
+        .controls { display: flex; justify-content: space-between; margin-bottom: 20px; align-items: center; }
+        .stat-box { background: var(--light); padding: 15px; border-radius: 5px; font-weight: bold; color: var(--primary); }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9em; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: var(--primary); color: white; }
+        tr:hover { background-color: #f1f1f1; }
+        
+        .status-diskualifikasi { color: var(--danger); font-weight: bold; }
+        .status-selesai { color: var(--secondary); font-weight: bold; }
+        .loading { text-align: center; padding: 20px; font-style: italic; color: #666; }
+    </style>
+</head>
+<body>
+
+    <!-- Panel Login Admin -->
+    <div id="loginPanel" class="container login-box">
+        <h2>Akses Administrator</h2>
+        <p>Silakan masukkan PIN untuk melihat rekapitulasi nilai IPA.</p>
+        <input type="password" id="adminPin" placeholder="Masukkan PIN" onkeypress="if(event.key === 'Enter') cekPin()">
+        <button style="width: 100%;" onclick="cekPin()">Masuk</button>
+    </div>
+
+    <!-- Dasbor Utama -->
+    <div id="dashboardPanel" class="container hidden">
+        <h2>Rekapitulasi Hasil Ujian</h2>
+        
+        <div class="controls">
+            <button onclick="muatData()">🔄 Perbarui Data</button>
+            <div class="stat-box" id="totalSiswa">Total Peserta: 0</div>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table id="tabelNilai">
+                <thead>
+                    <tr>
+                        <th>Waktu Submit</th>
+                        <th>Nama Siswa</th>
+                        <th>Email</th>
+                        <th>Skor</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="badanTabel">
+                    <tr><td colspan="6" class="loading">Menunggu otorisasi...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal Detail Jawaban (Opsional jika ingin melihat butir soal) -->
+    <div id="detailModal" class="container hidden" style="margin-top: 20px; background: #fff3cd; border-left: 4px solid #ffc107;">
+        <div style="display: flex; justify-content: space-between;">
+            <h3 style="margin-top: 0;">Detail Jawaban: <span id="namaDetail"></span></h3>
+            <button onclick="document.getElementById('detailModal').classList.add('hidden')" style="background: var(--danger); padding: 5px 10px;">Tutup</button>
+        </div>
+        <p id="teksDetail" style="word-break: break-word; font-family: monospace; font-size: 0.9em;"></p>
+    </div>
+
+    <script>
+        // =========================================================
+        // 1. GANTI URL INI DENGAN URL WEB APP GOOGLE SCRIPT YANG BARU
+        const gasURL = "URL_GOOGLE_APPS_SCRIPT_ANDA_DISINI";
+        
+        // 2. ATUR PIN ADMIN DI SINI
+        const PIN_ADMIN = "ipa123";
+        // =========================================================
+
+        let dataGlobal = [];
+
+        function cekPin() {
+            const input = document.getElementById("adminPin").value;
+            if (input === PIN_ADMIN) {
+                document.getElementById("loginPanel").classList.add("hidden");
+                document.getElementById("dashboardPanel").classList.remove("hidden");
+                muatData();
+            } else {
+                alert("PIN Salah!");
+            }
+        }
+
+        function muatData() {
+            const tbody = document.getElementById("badanTabel");
+            tbody.innerHTML = '<tr><td colspan="6" class="loading">Mengambil data dari server...</td></tr>';
+            
+            fetch(gasURL)
+                .then(response => response.json())
+                .then(data => {
+                    dataGlobal = data.reverse(); // Balik urutan agar yang terbaru di atas
+                    tampilkanTabel();
+                })
+                .catch(error => {
+                    tbody.innerHTML = '<tr><td colspan="6" class="loading" style="color:red;">Gagal memuat data. Periksa koneksi atau URL Script.</td></tr>';
+                    console.error("Error fetching data:", error);
+                });
+        }
+
+        function tampilkanTabel() {
+            const tbody = document.getElementById("badanTabel");
+            document.getElementById("totalSiswa").innerText = "Total Peserta: " + dataGlobal.length;
+            tbody.innerHTML = "";
+
+            if (dataGlobal.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="loading">Belum ada data ujian yang masuk.</td></tr>';
+                return;
+            }
+
+            dataGlobal.forEach((baris, index) => {
+                const tr = document.createElement("tr");
+                
+                // Format Status
+                let statusClass = baris.status.toLowerCase().includes("diskualifikasi") ? "status-diskualifikasi" : "status-selesai";
+
+                tr.innerHTML = `
+                    <td>${baris.waktu}</td>
+                    <td><b>${baris.nama}</b></td>
+                    <td>${baris.email}</td>
+                    <td style="font-size: 1.2em; font-weight: bold;">${baris.skor}</td>
+                    <td class="${statusClass}">${baris.status}</td>
+                    <td><button style="padding: 5px 10px; font-size: 0.8em;" onclick="lihatDetail(${index})">Detail</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function lihatDetail(index) {
+            const data = dataGlobal[index];
+            document.getElementById("namaDetail").innerText = data.nama;
+            
+            // Format ulang teks detail agar lebih rapi
+            let detailRapih = data.detail.replace(/ \| /g, "<br>• ");
+            document.getElementById("teksDetail").innerHTML = "• " + detailRapih;
+            
+            document.getElementById("detailModal").classList.remove("hidden");
+            // Scroll ke bagian detail
+            document.getElementById("detailModal").scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
